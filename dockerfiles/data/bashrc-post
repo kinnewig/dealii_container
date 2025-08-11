@@ -1,0 +1,64 @@
+# .bashrc
+
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+	. /etc/bashrc
+fi
+
+# User specific environment
+if ! [[ "$PATH" =~ "$HOME/.local/bin:$HOME/bin:" ]]
+then
+    PATH="$HOME/.local/bin:$HOME/bin:$PATH"
+fi
+export PATH
+
+# Uncomment the following line if you don't like systemctl's auto-paging feature:
+# export SYSTEMD_PAGER=
+
+# User specific aliases and functions
+if [ -d ~/.bashrc.d ]; then
+	for rc in ~/.bashrc.d/*; do
+		if [ -f "$rc" ]; then
+			. "$rc"
+		fi
+	done
+fi
+
+unset rc
+
+# --- History Size ---
+HISTSIZE=1000000
+HISTFILESIZE=1000000
+
+# --- Modules ---
+# Enable modules
+source /etc/profile.d/modules.sh
+
+# Load the mpi module
+module load mpi/openmpi-x86_64
+
+# --- Custom PATH ---
+# Compiler
+export CC=gcc
+export CXX=g++ 
+export FC=gfortran
+
+# MPI Compiler
+export MPI_CC=mpicc
+export MPI_CXX=mpi++
+export MPI_FC=mpifort
+
+# Additional Software installed via dcs2
+export PATH=/home/dealii/dcs2/bin:${PATH}
+export LD_LIBRARY_PATH=/home/dealii/dcs2/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/home/dealii/dcs2/lib64:$LD_LIBRARY_PATH
+
+# deal.II
+export export DEAL_II_DIR=/home/dealii/dcs2/dealii/9.6.0
+
+# --- Custim Alias ---
+# Use always neovim
+alias vim=nvim
+
+RUN echo -e "\n" >> /home/dealii/.bashrc
+
