@@ -57,7 +57,7 @@ RUN echo "**** Install deal.II ****"
 RUN git clone https://github.com/kinnewig/dcs2.git dcs2-source
 RUN cd /home/dealii/dcs2-source && \
     source /home/dealii/.bashrc && \
-    /bin/bash dcs2.sh -b /home/dealii/dcs2-build -p /home/dealii/dcs2 -j 8 -U
+    /bin/bash dcs2.sh -b /home/dealii/dcs2-build -p /home/dealii/dcs2 -j 2 --cmake-flags "-D TRILINOS_CUSTOM_URL=https://github.com/kinnewig/Trilinos.git -D TRILINOS_CUSTOM_TAG=OptimizedSchwarz-16.1.0 -D DEALII_CUSTOM_URL=https://github.com/kinnewig/dealii.git -D DEALII_CUSTOM_TAG=FROSch-preconditioner-latest" -U
 
 COPY data/bashrc-post /home/dealii/.bashrc
 
