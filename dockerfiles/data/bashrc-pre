@@ -51,3 +51,4 @@ export MPI_FC=mpifort
 # --- Custim Alias ---
 # Use always neovim
 alias vim=nvim
+alias python3=python

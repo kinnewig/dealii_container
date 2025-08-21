@@ -15,6 +15,14 @@ RUN dnf -y install        \
         openmpi-devel     
 
 RUN dnf -y install        \
+        blas-devel        \
+        lapack-devel
+
+RUN dnf -y install        \
+        python3           \
+        python-devel
+
+RUN dnf -y install        \
         curl              \
         cmake             \
         git               \
@@ -55,10 +63,12 @@ COPY data/bashrc-pre /home/dealii/.bashrc
 
 RUN echo "**** Install deal.II ****"
 RUN git clone https://github.com/kinnewig/dcs2.git dcs2-source
-RUN cd /home/dealii/dcs2-source && \
-    source /home/dealii/.bashrc && \
-    git checkout cbc251f6e15ee4319f2a02d238f938e33db263d5 && \
-    /bin/bash dcs2.sh -b /home/dealii/dcs2-build -p /home/dealii/dcs2 -j 2 --cmake-flags "-D TRILINOS_CUSTOM_URL=https://github.com/kinnewig/Trilinos.git -D TRILINOS_CUSTOM_TAG=OptimizedSchwarz-16.1.0 -D DEALII_CUSTOM_URL=https://github.com/kinnewig/dealii.git -D DEALII_CUSTOM_TAG=FROSch-preconditioner-latest" -U
+
+WORKDIR /home/dealii/dcs2-source
+RUN git fetch --all
+RUN git checkout cbc251f6e15ee4319f2a02d238f938e33db263d5
+RUN source /home/dealii/.bashrc && \
+    /bin/bash dcs2.sh -b /home/dealii/dcs2-build -p /home/dealii/dcs2 -j 12 --cmake-flags "-D TRILINOS_CUSTOM_URL=https://github.com/kinnewig/Trilinos.git -D TRILINOS_CUSTOM_TAG=OptimizedSchwarz-16.1.0 -D DEALII_CUSTOM_URL=https://github.com/kinnewig/dealii.git -D DEALII_CUSTOM_TAG=FROSch-preconditioner-latest -D TPL_ENABLE_BLIS=OFF -D TPL_ENABLE_LIBFLAME=OFF" -U
 
 COPY data/bashrc-post /home/dealii/.bashrc
 

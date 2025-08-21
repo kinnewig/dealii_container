@@ -59,6 +59,7 @@ export export DEAL_II_DIR=/home/dealii/dcs2/dealii/9.6.0
 # --- Custim Alias ---
 # Use always neovim
 alias vim=nvim
+alias python3=python
 
 RUN echo -e "\n" >> /home/dealii/.bashrc
 
