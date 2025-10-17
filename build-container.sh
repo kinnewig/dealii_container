@@ -13,6 +13,33 @@ cecho() {
     echo -e "${COL}$@\033[0m"
 }
 
+# Create a copy that we can modify
+cp dockerfiles/dealii_container_source dockerfiles/dealii_container
+
+# Load the options:
+source ./options.sh
+
+# Apply the options
+options=(
+  "THREADS"
+  "BLAS_STACK"
+  "DEALII_URL"
+  "DEALII_TAG"
+  "TRILINOS_URL"
+  "TRILINOS_TAG"
+  "MUMPS"
+  "SUITESPARSE"
+  "SUPERLU_DIST"
+  "PETSC"
+  "TRILINOS"
+  "NUMDIFF"
+)
+for option in "${options[@]}"; do
+  option_value="${!option}"  
+  sed -i "s#\b${option}\b#${option_value}#g" dockerfiles/dealii_container
+done
+
+# Build the container
 if command -v podman &>/dev/null; then
   podman build -t dealii_container -f dockerfiles/dealii_container
   build_exit=$?

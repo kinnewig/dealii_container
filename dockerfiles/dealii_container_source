@@ -1,0 +1,99 @@
+FROM docker.io/rockylinux/rockylinux:10 AS base
+
+
+RUN echo "**** Update System ****"
+RUN dnf -y update
+
+RUN dnf -y install epel-release
+RUN dnf -y config-manager --set-enabled crb
+RUN dnf -y update
+
+RUN echo "**** Install System Packages ****"
+RUN dnf -y groupinstall "Development Tools"
+RUN dnf -y install              \
+        gcc-c++                 \
+        openmpi-devel           
+
+RUN dnf -y install              \
+        blas-devel              \
+        lapack-devel            \
+        scalapack-openmpi-devel
+
+RUN dnf -y install              \
+        python3                 \
+        python-devel
+
+RUN dnf -y install              \
+        curl                    \
+        cmake                   \
+        git                     \
+        mold                    \
+        ninja-build             \
+        texinfo                 
+
+RUN dnf -y install              \
+        boost-devel             \
+        gmp-devel               \
+        hdf5-openmpi-devel      \
+        mpfr-devel              \
+        tbb-devel               \
+        zlib-devel
+
+RUN dnf -y install              \
+        vim                     \
+        neovim                  \
+        tmux
+
+
+RUN echo "**** cleanup ****" && \
+    dnf autoremove -y &&        \
+    dnf clean all &&            \
+    rm -rf                      \
+       /config/.cache           \
+       /tmp/*
+
+
+FROM base AS dcs2
+
+RUN echo "**** Create the default user ****"
+RUN useradd -m -s /bin/bash dealii
+
+WORKDIR /home/dealii
+USER dealii
+
+COPY data/bashrc-pre /home/dealii/.bashrc
+
+
+RUN echo "**** Install deal.II ****"
+RUN git clone https://github.com/kinnewig/dcs2.git dcs2-source
+
+WORKDIR /home/dealii/dcs2-source
+RUN git fetch --all
+RUN source /home/dealii/.bashrc && \
+    /bin/bash dcs2.sh \
+      --prefix /home/dealii/dcs2 \
+      --build /home/dealii/dcs2-build \
+      --blas-stack BLAS_STACK \
+      --user-interaction OFF \
+      -j THREADS \
+      --cmake-flags "-D TPL_ENABLE_SUITESPARSE:BOOL=SUITESPARSE \
+                     -D TPL_ENABLE_MUMPS:BOOL=MUMPS \
+                     -D TPL_ENABLE_SUPERLU_DIST=SUPERLU_DIST \
+                     -D TPL_ENABLE_PETSC=PETSC \
+                     -D TPL_ENABLE_TRILINOS=TRILINOS \
+                     -D TPL_ENABLE_NUMDIFF=NUMDIFF \
+                     -D TRILINOS_CUSTOM_URL=TRILINOS_URL \
+                     -D TRILINOS_CUSTOM_TAG=TRILINOS_TAG \
+                     -D DEALII_CUSTOM_URL=DEALII_URL \
+                     -D DEALII_CUSTOM_TAG=DEALII_TAG"
+
+COPY data/bashrc-post /home/dealii/.bashrc
+
+RUN echo "**** cleanup ****" && \
+    rm -rf                      \
+       /home/dealii/dcs2-source \
+       /home/dealii/dcs2-build
+
+
+WORKDIR /home/dealii
+ENTRYPOINT ["/bin/bash"]
